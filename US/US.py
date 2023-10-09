@@ -20,17 +20,15 @@ def us():
         abort(400)
     else:
         hostname = arg.get("hostname")
-        as_ip = arg.get("as_ip")
-        num = arg.get("number")
         as_port = arg.get("as_port")
         dnsMessage = "TYPE=A\n" + "NAME=" + hostname
-        userSocket = socket(AF_INET, SOCK_DGRAM)
+        as_ip = arg.get("as_ip")
         address = (as_ip, int(as_port))
-        userSocket.sendto(dnsMessage.encode(), address)
+        uso = socket(AF_INET, SOCK_DGRAM)
+        uso.sendto(dnsMessage.encode(), address)
 
-        responseMessage, authoritativeAddress = userSocket.recvfrom(2048)
-        decode = responseMessage.decode()
-        response = decode.split('\n')
+        responseMessage, authoritativeAddress = uso.recvfrom(2048)
+        response = responseMessage.decode().split('\n')
         for line in response:
             print(line)
             name, value = line.split('=')
@@ -39,10 +37,10 @@ def us():
                 print(ip)
                 break
 
-        if ip == "0.0.0.0":
-            return "No IP address for the input fibonacci server exists"
+        if ip != "0.0.0.0":
+            return "The IP address is: " + ip
         else:
-            return "The IP address of Fibonacci Server is: " + ip
+            return "No IP address"
 
 app.run(host = '0.0.0.0',
         port = 8080,)

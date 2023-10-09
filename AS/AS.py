@@ -4,11 +4,11 @@
 
 from socket import *
 
-authoritativeSocket = socket(AF_INET, SOCK_DGRAM)
-authoritativeSocket.bind(('', 53533))
+aso = socket(AF_INET, SOCK_DGRAM)
+aso.bind(('', 53533))
 
 while True:
-    message, clientAddress = authoritativeSocket.recvfrom(2048)
+    message, ca = aso.recvfrom(2048)
     message = message.decode()
 
     print(message)
@@ -16,22 +16,22 @@ while True:
     length = message.split('\n')
 
     if len(length) == 2:
-        flag = 'Query'
+        t = 'Query'
     else:
-        flag = 'Register'
+        t = 'Register'
     for line in length:
         name, value = line.split('=')
         if name == "NAME":
             hostname = value
         elif name == "VALUE":
             ip = value
-    if flag == "Register":
+    if t == "Register":
         file = open("DNS.txt", "a+")
         file.write(message + '\n')
         file.close()
 
         response = b'Finished Registration!'
-        authoritativeSocket.sendto(response, clientAddress)
+        aso.sendto(response, ca)
     else:
         ip = "0.0.0.0"
         with open("DNS.txt", "r") as f:
@@ -44,6 +44,6 @@ while True:
                     break
                 line = f.readline()
 
-        responseMessage = "TYPE=A\n" + "NAME=" + hostname + "\nVALUE=" + ip + "\nTTL=10"
-        authoritativeSocket.sendto(responseMessage.encode(), clientAddress)
+        rm = "TYPE=A\n" + "NAME=" + hostname + "\nVALUE=" + ip + "\nTTL=10"
+        aso.sendto(rm.encode(), ca)
         print("Succeed")
